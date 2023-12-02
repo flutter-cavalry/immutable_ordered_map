@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:immutable_ordered_map/immutable_ordered_map.dart';
 
 void main() {
