@@ -18,7 +18,7 @@ class ImmutableOrderedMap<K, V> {
   /// no such key exists.
   V? get(K key) {
     final found = find(key);
-    return found == -1 ? null : _content[found + 1];
+    return found == -1 ? null : (_content[found + 1] as V);
   }
 
   /// Create a new map by replacing the value of `key` with a new
@@ -26,7 +26,7 @@ class ImmutableOrderedMap<K, V> {
   /// given, the key of the binding will be replaced with that key.
   ImmutableOrderedMap<K, V> update(K key, V value, K? newKey) {
     final self = newKey != null && newKey != key ? this.remove(newKey) : this;
-    var found = self.find(key);
+    final found = self.find(key);
     final content = [..._content];
     if (found == -1) {
       content.add(newKey ?? key);
@@ -42,11 +42,11 @@ class ImmutableOrderedMap<K, V> {
 
   /// Return a map with the given key removed, if it existed.
   ImmutableOrderedMap<K, V> remove(K key) {
-    var found = this.find(key);
+    final found = this.find(key);
     if (found == -1) {
       return this;
     }
-    var content = [..._content];
+    final content = [..._content];
     content.removeRange(found, found + 2);
     return ImmutableOrderedMap<K, V>._(content);
   }
@@ -58,8 +58,8 @@ class ImmutableOrderedMap<K, V> {
   }
 
   /// Add a new key to the end of the map.
-  ImmutableOrderedMap<K, V> addToEnd(key, value) {
-    var content = [...this.remove(key)._content];
+  ImmutableOrderedMap<K, V> addToEnd(K key, V value) {
+    final content = [...this.remove(key)._content];
     content.add(key);
     content.add(value);
     return ImmutableOrderedMap<K, V>._(content);
@@ -68,9 +68,9 @@ class ImmutableOrderedMap<K, V> {
   /// Add a key after the given key. If `place` is not found, the new
   /// key is added to the end.
   ImmutableOrderedMap<K, V> addBefore(K place, K key, V value) {
-    var without = this.remove(key);
+    final without = this.remove(key);
     final content = [...without._content];
-    var found = without.find(place);
+    final found = without.find(place);
     content.insert(found == -1 ? content.length : found, key);
     content.insert(found == -1 ? content.length : found + 1, value);
     return ImmutableOrderedMap<K, V>._(content);
@@ -80,7 +80,7 @@ class ImmutableOrderedMap<K, V> {
   /// order.
   void forEach(void Function(K, V) f) {
     for (var i = 0; i < _content.length; i += 2) {
-      f(_content[i], _content[i + 1]);
+      f(_content[i] as K, _content[i + 1] as V);
     }
   }
 
@@ -112,18 +112,18 @@ class ImmutableOrderedMap<K, V> {
     var result = this;
     final ioMap = ImmutableOrderedMap.from(map);
     for (var i = 0; i < ioMap._content.length; i += 2) {
-      result = result.remove(ioMap._content[i]);
+      result = result.remove(ioMap._content[i] as K);
     }
     return result;
   }
 
   /// The amount of keys in this map.
-  get size {
+  int get size {
     return _content.length >> 1;
   }
 
   Map<K, V> toMap() {
-    Map<K, V> result = {};
+    final Map<K, V> result = {};
     this.forEach((key, value) {
       result[key] = value;
     });
@@ -133,7 +133,7 @@ class ImmutableOrderedMap<K, V> {
   /// Return a map with the given content. If null, create an empty
   /// map. If given an ordered map, return that map itself. If given an
   /// object, create a map from the object's properties.
-  static from<K, V>(Map<K, V>? map) {
+  static ImmutableOrderedMap<K, V> from<K, V>(Map<K, V>? map) {
     final List<dynamic> content = [];
     if (map != null) {
       map.forEach((key, value) {
@@ -141,6 +141,6 @@ class ImmutableOrderedMap<K, V> {
         content.add(value);
       });
     }
-    return ImmutableOrderedMap._(content);
+    return ImmutableOrderedMap<K, V>._(content);
   }
 }
